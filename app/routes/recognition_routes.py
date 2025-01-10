@@ -16,13 +16,13 @@ def recognize():
     try:
         # Check if a file is present in the request
         if "audio" not in request.files:
-            return jsonify({"error": "No file part in the request"}), 400
+            return render_template("result.html", match=None, error="No file part in the request"), 400
         
         file = request.files["audio"]
         
         # Check if the file is empty
         if file.filename == "":
-            return jsonify({"error": "No file selected"}), 400
+            return render_template("result.html", match=None, error="No file selected"), 400
         
         # Save the uploaded file to the server
         file_path = os.path.join(UPLOAD_FOLDER, file.filename)
@@ -36,18 +36,18 @@ def recognize():
 
         # Handle the result
         if "error" in result:
-            return jsonify({"error": result["error"]}), 500
+             return render_template("result.html", match=None, error=result["error"]), 500
         
         # Parse and structure the response
         if result.get("status", {}).get("code") == 0:  # Success case
             song_info = extract_song_info(result)
-            return jsonify(song_info), 200
+            return render_template("result.html", match=song_info), 200
 
         # No match found or other status code
-        return jsonify({"message": "No match found"}), 404
+        return render_template("result.html", match=None, error="No match found"), 404
 
     except Exception as e:
-        return jsonify({"error": f"An unexpected error occurred: {str(e)}"}), 500
+        return render_template("result.html", match=None, error=f"An unexpected error occurred: {str(e)}"), 500
 
 @recognition_routes.route("/", methods=["GET"])
 def index():

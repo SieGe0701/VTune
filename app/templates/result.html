@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vtune - Song Match</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header class="header">
+        <h1>🎶 Vtune</h1>
+        <p>Your tune has been processed!</p>
+    </header>
+
+    <main class="main-content">
+        <div class="result-container">
+            {% if error %}
+                <h2>⚠️ Error</h2>
+                <p>{{ error }}</p>
+            {% elif match %}
+                <h2>🎉 Match Found!</h2>
+                <p><strong>Song Name:</strong> {{ match['title'] }}</p>
+                <p><strong>Artist:</strong> {{ match['artist'] }}</p>
+            {% else %}
+                <h2>😔 No Match Found</h2>
+                <p>We couldn't identify your tune. Please try another one!</p>
+            {% endif %}
+            <button class="btn-submit" onclick="window.location.href='/'">Try Again</button>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <p>Powered by ACRCloud | Developed with ❤️</p>
+    </footer>
+</body>
+</html>
