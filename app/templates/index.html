@@ -1,17 +1,30 @@
-<!-- app/templates/index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Name That Tune</title>
+    <title>Vtune - Identify Songs</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
 </head>
 <body>
-    <h1>Welcome to Name That Tune!</h1>
-    <form action="/recognize" method="POST" enctype="multipart/form-data">
-        <label for="audio">Upload your hummed tune:</label>
-        <input type="file" name="audio" id="audio" accept="audio/*" required>
-        <button type="submit">Identify Song</button>
-    </form>
+    <header class="header">
+        <h1>🎶 Vtune</h1>
+        <p>Discover songs by humming or uploading audio files.</p>
+    </header>
+
+    <main class="main-content">
+        <div class="form-container">
+            <form action="/recognize" method="post" enctype="multipart/form-data" class="upload-form">
+                <label for="file" class="upload-label">Upload or Record Your Tune:</label>
+                <input type="file" name="audio" id="audio" class="file-input" required>
+                <button type="submit" class="btn-submit">Identify Song</button>
+            </form>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <p>Powered by ACRCloud | Developed with ❤️</p>
+    </footer>
 </body>
 </html>
