@@ -3,28 +3,46 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vtune - Identify Songs</title>
+    <title>Vtune - Identify Your Tune</title>
     <link rel="stylesheet" href="/static/css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
 </head>
 <body>
     <header class="header">
         <h1>🎶 Vtune</h1>
-        <p>Discover songs by humming or uploading audio files.</p>
+        <p>Identify the song by uploading or recording a tune!</p>
     </header>
 
     <main class="main-content">
-        <div class="form-container">
-            <form action="/recognize" method="post" enctype="multipart/form-data" class="upload-form">
-                <label for="file" class="upload-label">Upload or Record Your Tune:</label>
-                <input type="file" name="audio" id="audio" class="file-input" required>
-                <button type="submit" class="btn-submit">Identify Song</button>
-            </form>
-        </div>
+        <form id="upload-form" method="POST" enctype="multipart/form-data" action="/recognize">
+            <div class="form-group">
+                <label for="audio">Upload an audio file:</label>
+                <input type="file" id="audio" name="audio" accept="audio/*">
+            </div>
+
+            <p>OR</p>
+
+            <div class="form-group">
+                <button type="button" id="record-btn" class="btn-submit">🎙️ Start Recording</button>
+                <button type="button" id="stop-btn" class="btn-submit" disabled>⏹️ Stop Recording</button>
+                <p id="recording-status" style="color: #555; font-size: 0.9em;"></p>
+            </div>
+
+            <!-- Audio Player -->
+            <div class="form-group" id="audio-player-container" style="display: none;">
+                <p>Listen to your recording:</p>
+                <audio id="audio-player" controls></audio>
+            </div>
+
+            <input type="hidden" id="recorded-audio" name="recorded-audio">
+            <button type="submit" class="btn-submit">Identify Song</button>
+        </form>
     </main>
 
     <footer class="footer">
         <p>Powered by ACRCloud | Developed with ❤️</p>
     </footer>
+
+    <script src="/static/js/recorder.js"></script>
 </body>
 </html>
