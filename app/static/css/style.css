@@ -150,6 +150,32 @@ body {
     color: rgba(255, 255, 255, 0.7) !important;
 }
 
+
+/*Audio player styles*/
+
+#audio-player-container {
+    width: 83%;
+    max-width: 500px;
+    padding: 2.5rem;
+    background: var(--surface-color);
+    backdrop-filter: blur(8px);
+    border-radius: 20px;
+    box-shadow: var(--shadow);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+#audio-player{
+    width: 100%;
+    padding: 0.5rem;
+    border-radius: 10px;
+    background: transparent;
+    color: #fff;
+    transition: all 0.3s ease;
+}
+
 /* Footer styles */
 .footer {
     text-align: center;
