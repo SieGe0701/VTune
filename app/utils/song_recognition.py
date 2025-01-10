@@ -1,62 +1,59 @@
-import json
-import numpy as np
-import librosa
+import base64
+import hashlib
+import hmac
+import os
+import time
+import requests
+from dotenv import load_dotenv
 
-def extract_features_from_hum(audio):
-    """
-    Extract combined features from the user's hummed audio.
-    """
-    y = np.array(audio.get_array_of_samples(), dtype=np.float32) / 32768.0
-    sr = audio.frame_rate
+# Load environment variables
+load_dotenv()
 
-    # Extract MFCC features
-    mfcc = librosa.feature.mfcc(y=y, sr=sr, n_mfcc=20)
-    mfcc_mean = mfcc.mean(axis=1)
+# Load ACRCloud credentials from .env file
+host = os.getenv("host")
+access_key = os.getenv("access_key")
+access_secret = os.getenv("secret_key")
 
-    # Extract Chroma features
-    chroma = librosa.feature.chroma_stft(y=y, sr=sr)
-    chroma_mean = chroma.mean(axis=1)
+if not host or not access_key or not access_secret:
+    raise ValueError("Missing required ACRCloud credentials in .env file.")
 
-    # Combine MFCC and Chroma features
-    combined_features = np.concatenate((mfcc_mean, chroma_mean))
-    return combined_features
+# API details
+requrl = f"https://{host}/v1/identify"
+http_method = "POST"
+http_uri = "/v1/identify"
+data_type = "audio"
+signature_version = "1"
 
-def recognize_song(hummed_features, metadata_file, threshold=0.75):
-    """
-    Match the hummed features with the song database.
-    """
-    with open(metadata_file, 'r') as file:
-        songs = json.load(file)
+def recognize_song(file_path):
+    """Recognize a song using the ACRCloud API."""
+    try:
+        # Generate timestamp and signature
+        timestamp = str(int(time.time()))
+        string_to_sign = f"{http_method}\n{http_uri}\n{access_key}\n{data_type}\n{signature_version}\n{timestamp}"
+        sign = base64.b64encode(
+            hmac.new(access_secret.encode('ascii'), string_to_sign.encode('ascii'), digestmod=hashlib.sha1).digest()
+        ).decode('ascii')
 
-    def cosine_similarity(a, b):
-        return np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b))
+        # Get file size and prepare request payload
+        sample_bytes = os.path.getsize(file_path)
+        with open(file_path, "rb") as f:
+            files = [('sample', (os.path.basename(file_path), f, 'audio/mpeg'))]
+            data = {
+                'access_key': access_key,
+                'sample_bytes': sample_bytes,
+                'timestamp': timestamp,
+                'signature': sign,
+                'data_type': data_type,
+                "signature_version": signature_version
+            }
 
-    best_match = None
-    best_score = -1
+            # Send request to ACRCloud
+            response = requests.post(requrl, files=files, data=data)
+            response.raise_for_status()  # Raise HTTPError for bad responses (4xx or 5xx)
+            return response.json()  # Parse and return JSON response
 
-    for song in songs:
-        # Convert stored features (list) to a NumPy array
-        song_features = np.array(song['features'])
-        similarity = cosine_similarity(hummed_features, song_features)
-    
+    except requests.exceptions.RequestException as e:
+        return {"error": f"Request failed: {str(e)}"}
+    except Exception as e:
+        return {"error": f"An error occurred: {str(e)}"}
 
-        if similarity > best_score:
-            best_score = similarity
-            best_match = song
-
-    if best_match and best_score >= threshold:
-        return {
-            "title": best_match['title'],
-            "artist": best_match['artist'],
-            "score": best_score
-        }
-    else:
-        return {"error": "No match found above the threshold"}
-
-
-
-def normalize_features(features):
-    """
-    Normalize features to have zero mean and unit variance.
-    """
-    return (features - np.mean(features)) / np.std(features)
